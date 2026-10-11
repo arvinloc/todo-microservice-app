@@ -4,12 +4,14 @@ from uuid import UUID
 import bcrypt
 import jwt
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from schemas import UserSchema
 from models import Users
 
 class UsersService:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
         # Сервис сам создает репозиторий, передавая ему текущую сессию
 
@@ -30,9 +32,11 @@ class UsersService:
 
         return encoded_jwt
 
-    def register(self, dto: UserSchema) -> Users:
-        exists_user = self.session.query(Users).filter_by(email=dto.email).first()
+    async def register(self, dto: UserSchema) -> Users:
+        stmt = select(Users).filter_by(email=dto.email)
 
+        result = await self.session.execute(stmt)
+        exists_user = result.scalar()
         if exists_user:
             raise HTTPException(status_code=400, detail="this user already exists")
 
@@ -43,14 +47,19 @@ class UsersService:
         )
 
         self.session.add(new_user)
-        self.session.commit()
+        await self.session.commit()
 
         return new_user
 
-    def login(self, dto: UserSchema) -> str:
-        user = self.session.query(Users).filter_by(email=dto.email).first()
+    async def login(self, dto: UserSchema) -> str:
+        stmt = select(Users).filter_by(email=dto.email)
+        result = await self.session.execute(stmt)
+        user = result.scalars().first()
 
         if not user:
             raise HTTPException(status_code=404, detail="user not found")
+
+        if not self._verify_password(dto.password, user.hashed_password):
+             raise HTTPException(status_code=400, detail="wrong password")
 
         return self._create_access_token(user.id)

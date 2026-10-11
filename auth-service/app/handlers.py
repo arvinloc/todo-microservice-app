@@ -13,7 +13,7 @@ async def register_user(
         user:UserSchema,
         service: UsersService = Depends(get_auth_service)):
 
-        service.register(user)
+        await service.register(user)
 
         return {"message":"user successfully registered"}
 
@@ -23,7 +23,7 @@ async def login_user(
         user:UserSchema,
         service: UsersService = Depends(get_auth_service)):
 
-        token = service.login(user)
+        token = await service.login(user)
 
         return TokenResponse(access_token=token)
 

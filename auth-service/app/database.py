@@ -1,13 +1,15 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
 from models import Base
 from settings import settings
 
-engine = create_engine(settings.SQLITE_URL,echo=True)
+engine = create_async_engine(settings.POSTGRES_URL,echo=True)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False,bind=engine)
+SessionLocal = async_sessionmaker(autocommit=False, class_=AsyncSession,autoflush=False,bind=engine)
 
 
 
-def init_db():
-    Base.metadata.create_all(engine)
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)

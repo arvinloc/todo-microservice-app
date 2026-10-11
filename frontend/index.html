@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Todo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231c1917'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' fill='none' stroke='%23fafaf9' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-name">todo</span>
+    </div>
+    <div class="session" id="session" hidden>
+      <span class="session-email" id="session-email"></span>
+      <button class="btn btn-ghost btn-sm" id="logout-btn" type="button">Выйти</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Авторизация -->
+    <section class="view" id="view-auth" hidden>
+      <div class="card auth-card">
+        <h1 class="title" id="auth-title">С возвращением</h1>
+        <p class="subtitle" id="auth-subtitle">Войдите, чтобы увидеть свои задачи.</p>
+
+        <div class="tabs" role="tablist" aria-label="Режим входа">
+          <button class="tab is-active" role="tab" id="tab-signin" data-mode="signin" aria-selected="true" type="button">Вход</button>
+          <button class="tab" role="tab" id="tab-signup" data-mode="signup" aria-selected="false" type="button">Регистрация</button>
+        </div>
+
+        <form id="auth-form" novalidate>
+          <label class="field">
+            <span class="field-label">Email</span>
+            <input class="input" type="email" name="email" id="auth-email" autocomplete="email" placeholder="you@example.com" required>
+          </label>
+          <label class="field">
+            <span class="field-label">Пароль</span>
+            <input class="input" type="password" name="password" id="auth-password" autocomplete="current-password" placeholder="••••••••" required>
+          </label>
+          <p class="form-error" id="auth-error" role="alert" hidden></p>
+          <button class="btn btn-primary btn-block" id="auth-submit" type="submit">Войти</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Задачи -->
+    <section class="view" id="view-todos" hidden>
+      <div class="heading">
+        <h1 class="title">Задачи</h1>
+        <p class="subtitle" id="todo-counter">&nbsp;</p>
+      </div>
+
+      <form class="card composer" id="todo-form" novalidate>
+        <input class="input input-bare input-title" id="todo-title" name="title" maxlength="255" placeholder="Что нужно сделать?" autocomplete="off" required>
+        <input class="input input-bare input-desc" id="todo-desc" name="description" maxlength="255" placeholder="Описание" autocomplete="off" required>
+        <div class="composer-foot">
+          <p class="form-error" id="todo-error" role="alert" hidden></p>
+          <button class="btn btn-primary" id="todo-add" type="submit">Добавить</button>
+        </div>
+      </form>
+
+      <div class="filters" role="group" aria-label="Фильтр задач">
+        <button class="chip is-active" data-filter="all" type="button">Все</button>
+        <button class="chip" data-filter="active" type="button">Активные</button>
+        <button class="chip" data-filter="done" type="button">Выполненные</button>
+      </div>
+
+      <ul class="list" id="todo-list" aria-live="polite"></ul>
+
+      <div class="empty" id="todo-empty" hidden>
+        <div class="empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="empty-title" id="empty-title">Пока пусто</p>
+        <p class="empty-text" id="empty-text">Добавьте первую задачу выше.</p>
+      </div>
+
+      <div class="skeletons" id="todo-skeleton" hidden>
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

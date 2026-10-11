@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from starlette import status
@@ -11,24 +12,24 @@ from models import Todos
 
 
 class TodoService:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
         self.repo = TodoRepository(session)
 
-    def create_todo(self, dto: TodoCreate,user_id:UUID) -> Todos:
+    async def create_todo(self, dto: TodoCreate,user_id:UUID) -> Todos:
 
         try:
-            todo = self.repo.create_todo(dto,user_id)
-            self.session.commit()
-            self.session.refresh(todo)
+            todo = await self.repo.create_todo(dto,user_id)
+            await self.session.commit()
+            await self.session.refresh(todo)
             return todo
 
         except Exception:
-            self.session.rollback()
+            await self.session.rollback()
             raise
 
-    def get_todo(self, todo_id: UUID, user_id: UUID) -> Todos:
-        todo = self.repo.get_todo_by_id(todo_id)
+    async def get_todo(self, todo_id: UUID, user_id: UUID) -> Todos:
+        todo = await self.repo.get_todo_by_id(todo_id)
         if not todo:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Todo not found")
 
@@ -38,18 +39,18 @@ class TodoService:
 
         return todo
 
-    def update_todo(self, todo_id: UUID, dto: TodoUpdate, user_id: UUID) -> Todos:
-        todo = self.get_todo(todo_id, user_id)
+    async def update_todo(self, todo_id: UUID, dto: TodoUpdate, user_id: UUID) -> Todos:
+        todo = await self.get_todo(todo_id, user_id)
 
         update_data = dto.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(todo, key, value)
-        self.session.commit()
-        self.session.refresh(todo)
+        await self.session.commit()
+        await self.session.refresh(todo)
         return todo
 
-    def delete_todo(self, todo_id: UUID, user_id: UUID) -> None:
-        todo = self.get_todo(todo_id, user_id)
-        self.session.delete(todo)
-        self.session.commit()
+    async def delete_todo(self, todo_id: UUID, user_id: UUID) -> None:
+        todo = await self.get_todo(todo_id, user_id)
+        await self.session.delete(todo)
+        await self.session.commit()
 

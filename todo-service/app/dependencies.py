@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, AsyncGenerator
 from uuid import UUID
 
 import jwt
@@ -10,9 +10,9 @@ from service import TodoService
 
 security = HTTPBearer()
 
-def get_todo_service() -> Generator[TodoService, None, None]:
+async def get_todo_service() -> AsyncGenerator[TodoService, None]:
     # Создаем сессию для этого запроса
-    with SessionLocal() as session:
+    async with SessionLocal() as session:
         # Передаем сервис, который внутри себя уже создаст репозиторий
         yield TodoService(session)
     # Здесь блок with автоматически закроет сессию, когда эндпоинт отработает
